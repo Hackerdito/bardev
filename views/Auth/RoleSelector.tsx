@@ -112,7 +112,7 @@ const RoleSelector: React.FC = () => {
       <div className="max-w-md w-full text-center relative z-10">
         <div className="mb-12">
           <div className="w-24 h-24 mx-auto bg-white dark:bg-zinc-900 rounded-[2rem] shadow-2xl flex items-center justify-center p-2 mb-6 border-4 border-white/20 overflow-hidden transform hover:scale-110 transition-transform">
-            <img src="https://static.vecteezy.com/system/resources/thumbnails/000/560/604/small/Vector_logo_with_bottel_beer.jpg" alt="Logo" className="w-full h-full object-cover" />
+            <img src="https://fileuk.netlify.app/full.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <h2 className="text-5xl font-black mb-2 italic tracking-tighter uppercase text-white transition-colors">BAR DEV</h2>
           <p className="text-lg font-bold uppercase tracking-widest text-indigo-300">Gestión Real-Time</p>
