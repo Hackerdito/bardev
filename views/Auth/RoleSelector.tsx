@@ -101,24 +101,21 @@ const RoleSelector: React.FC = () => {
 
   return (
     <div className="min-h-screen relative flex items-center justify-center p-6 overflow-hidden">
-      {view === 'roles' && (
-        <div 
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700 scale-105"
-          style={{ backgroundImage: 'url("https://images.pexels.com/photos/35269842/pexels-photo-35269842.jpeg")' }}
-        >
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"></div>
-        </div>
-      )}
-
-      {view !== 'roles' && <div className="absolute inset-0 z-0 bg-gray-50 dark:bg-zinc-950"></div>}
+      {/* Background Image - Persistent for all auth views */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700 scale-105"
+        style={{ backgroundImage: 'url("https://images.pexels.com/photos/35269842/pexels-photo-35269842.jpeg")' }}
+      >
+        <div className={`absolute inset-0 transition-colors duration-500 ${view === 'roles' ? 'bg-black/70 backdrop-blur-[2px]' : 'bg-black/60 backdrop-blur-[6px]'}`}></div>
+      </div>
 
       <div className="max-w-md w-full text-center relative z-10">
         <div className="mb-12">
           <div className="w-24 h-24 mx-auto bg-white dark:bg-zinc-900 rounded-[2rem] shadow-2xl flex items-center justify-center p-2 mb-6 border-4 border-white/20 overflow-hidden transform hover:scale-110 transition-transform">
             <img src="https://static.vecteezy.com/system/resources/thumbnails/000/560/604/small/Vector_logo_with_bottel_beer.jpg" alt="Logo" className="w-full h-full object-cover" />
           </div>
-          <h2 className={`text-5xl font-black mb-2 italic tracking-tighter uppercase transition-colors ${view === 'roles' ? 'text-white' : 'text-gray-900 dark:text-white'}`}>BAR DEV</h2>
-          <p className={`text-lg font-bold uppercase tracking-widest ${view === 'roles' ? 'text-indigo-300' : 'text-indigo-600 dark:text-indigo-400'}`}>Gestión Real-Time</p>
+          <h2 className="text-5xl font-black mb-2 italic tracking-tighter uppercase text-white transition-colors">BAR DEV</h2>
+          <p className="text-lg font-bold uppercase tracking-widest text-indigo-300">Gestión Real-Time</p>
         </div>
 
         {view === 'roles' && (
@@ -133,7 +130,7 @@ const RoleSelector: React.FC = () => {
         )}
 
         {view === 'pin' && (
-          <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3rem] shadow-2xl border dark:border-zinc-800 animate-in slide-in-from-bottom-12">
+          <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl p-10 rounded-[3rem] shadow-2xl border border-white/20 dark:border-zinc-800 animate-in slide-in-from-bottom-12">
             <div className="flex justify-between items-center mb-8">
               <button onClick={() => { setView('roles'); setIsLoggingIn(false); setError(''); }} className="flex items-center gap-2 text-indigo-600 font-black uppercase text-xs tracking-widest transition-all hover:-translate-x-1"><ChevronLeft size={20} /> Volver</button>
               <div className="text-right">
@@ -152,17 +149,17 @@ const RoleSelector: React.FC = () => {
             </div>
             <div className="grid grid-cols-3 gap-5 max-w-[300px] mx-auto">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                <button key={num} onClick={() => handleKeyPress(num.toString())} disabled={isLoggingIn} className="w-16 h-16 rounded-3xl bg-gray-50 dark:bg-zinc-800 flex items-center justify-center text-2xl font-black text-gray-900 dark:text-white hover:bg-indigo-600 hover:text-white active:scale-90 transition-all shadow-sm disabled:opacity-50">{num}</button>
+                <button key={num} onClick={() => handleKeyPress(num.toString())} disabled={isLoggingIn} className="w-16 h-16 rounded-3xl bg-gray-50/50 dark:bg-zinc-800/50 flex items-center justify-center text-2xl font-black text-gray-900 dark:text-white hover:bg-indigo-600 hover:text-white active:scale-90 transition-all shadow-sm disabled:opacity-50">{num}</button>
               ))}
               <button onClick={() => setPin('')} disabled={isLoggingIn} className="w-16 h-16 rounded-3xl flex items-center justify-center text-gray-400 hover:text-red-500"><X size={28} /></button>
-              <button key="0" onClick={() => handleKeyPress('0')} disabled={isLoggingIn} className="w-16 h-16 rounded-3xl bg-gray-50 dark:bg-zinc-800 flex items-center justify-center text-2xl font-black text-gray-900 dark:text-white hover:bg-indigo-600 hover:text-white transition-all">0</button>
-              <button onClick={handleDelete} disabled={isLoggingIn} className="w-16 h-16 rounded-3xl bg-gray-50 dark:bg-zinc-800 flex items-center justify-center text-gray-500 hover:bg-red-500 hover:text-white transition-all"><Delete size={28} /></button>
+              <button key="0" onClick={() => handleKeyPress('0')} disabled={isLoggingIn} className="w-16 h-16 rounded-3xl bg-gray-50/50 dark:bg-zinc-800/50 flex items-center justify-center text-2xl font-black text-gray-900 dark:text-white hover:bg-indigo-600 hover:text-white transition-all">0</button>
+              <button onClick={handleDelete} disabled={isLoggingIn} className="w-16 h-16 rounded-3xl bg-gray-50/50 dark:bg-zinc-800/50 flex items-center justify-center text-gray-500 hover:bg-red-500 hover:text-white transition-all"><Delete size={28} /></button>
             </div>
           </div>
         )}
 
         {view === 'admin-login' && (
-          <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3rem] shadow-2xl border dark:border-zinc-800 animate-in slide-in-from-bottom-12">
+          <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl p-10 rounded-[3rem] shadow-2xl border border-white/20 dark:border-zinc-800 animate-in slide-in-from-bottom-12">
             <div className="flex justify-between items-center mb-8">
               <button onClick={() => setView('roles')} className="flex items-center gap-2 text-indigo-600 font-black uppercase text-xs tracking-widest transition-all hover:-translate-x-1"><ChevronLeft size={20} /> Volver</button>
               <div className="text-right">
@@ -182,7 +179,7 @@ const RoleSelector: React.FC = () => {
                     onChange={e => setAdminUsername(e.target.value)}
                     required
                     placeholder="Ej: Admin Principal"
-                    className="w-full bg-gray-50 dark:bg-zinc-800 border-2 border-transparent focus:border-indigo-600 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white font-bold outline-none transition-all shadow-inner"
+                    className="w-full bg-gray-50/50 dark:bg-zinc-800/50 border-2 border-transparent focus:border-indigo-600 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white font-bold outline-none transition-all shadow-inner"
                    />
                 </div>
               </div>
@@ -197,7 +194,7 @@ const RoleSelector: React.FC = () => {
                     onChange={e => setAdminPass(e.target.value)}
                     required
                     placeholder="••••"
-                    className="w-full bg-gray-50 dark:bg-zinc-800 border-2 border-transparent focus:border-indigo-600 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white font-bold outline-none transition-all shadow-inner"
+                    className="w-full bg-gray-50/50 dark:bg-zinc-800/50 border-2 border-transparent focus:border-indigo-600 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white font-bold outline-none transition-all shadow-inner"
                    />
                 </div>
               </div>

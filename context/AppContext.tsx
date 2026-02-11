@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { 
   getFirestore, 
@@ -40,8 +40,10 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Persistencia offline opcional
-enableIndexedDbPersistence(db).catch(() => {});
+// Habilitar persistencia offline
+enableIndexedDbPersistence(db).catch((err) => {
+  if (err.code === 'failed-precondition') console.warn('Múltiples pestañas abiertas, persistencia limitada.');
+});
 
 interface AppContextType {
   user: User | null;
@@ -104,43 +106,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [loading, setLoading] = useState(true);
   const [isFirebaseAuthed, setIsFirebaseAuthed] = useState(false);
 
-  // Manejo de Temas
   useEffect(() => {
     if (theme === 'dark') document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
     localStorage.setItem('bar-dev-theme', theme);
   }, [theme]);
 
-  // Persistencia de Usuario Local
   useEffect(() => {
     if (user) localStorage.setItem('bar-dev-user', JSON.stringify(user));
     else localStorage.removeItem('bar-dev-user');
   }, [user]);
 
-  // 1. AUTENTICACIÓN ANÓNIMA (Para cumplir reglas de seguridad)
+  // 1. Manejo de Sesión de Firebase
   useEffect(() => {
-    const unsubAuth = onAuthStateChanged(auth, async (fbUser) => {
-      if (!fbUser) {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
         try {
           await signInAnonymously(auth);
-        } catch (e) {
-          console.error("Error Auth Firebase:", e);
+          console.debug("Acceso anónimo concedido.");
+          setIsFirebaseAuthed(true);
+        } catch (err: any) {
+          console.error("Error Auth Firebase:", err.code);
+          if (err.code === 'auth/admin-restricted-operation') {
+            console.warn("Autenticación anónima desactivada en consola. Los datos protegidos no serán visibles.");
+          }
         }
       } else {
         setIsFirebaseAuthed(true);
       }
     });
-    return () => unsubAuth();
+    return () => unsubscribeAuth();
   }, []);
 
-  // 2. LISTENERS PÚBLICOS (Usuarios y Menú)
-  // Se ejecutan siempre, ya que tienen "allow read: if true"
+  // 2. LISTENERS PÚBLICOS (Cargan siempre, sin depender de auth)
   useEffect(() => {
     const unsubUsers = onSnapshot(collection(db, 'users'), (snap) => {
-      const usersData = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
-      setUsers(usersData);
-      setLoading(false);
+      setUsers(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as User)));
       if (snap.empty) INITIAL_USERS.forEach(u => setDoc(doc(db, 'users', u.id), u));
+      setLoading(false); // Detenemos el spinner global al cargar usuarios
+    }, (err) => {
+      console.error("Error cargando usuarios:", err);
+      setLoading(false);
     });
 
     const unsubMenu = onSnapshot(collection(db, 'menu'), (snap) => {
@@ -151,28 +157,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => { unsubUsers(); unsubMenu(); };
   }, []);
 
-  // 3. LISTENERS PRIVADOS (Solo tras Auth exitosa)
+  // 3. LISTENERS PRIVADOS (Requieren auth para ver datos según tus reglas)
   useEffect(() => {
     if (!isFirebaseAuthed) return;
 
+    const errorHandler = (name: string) => (err: any) => {
+      console.warn(`Sin acceso a ${name}:`, err.message);
+    };
+
     const unsubTables = onSnapshot(collection(db, 'tables'), (snap) => {
       setTables(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Table)));
-    });
+    }, errorHandler('tables'));
     
     const unsubInv = onSnapshot(collection(db, 'inventory'), (snap) => {
       setInventory(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as InventoryItem)));
       if (snap.empty) INITIAL_INVENTORY.forEach(i => setDoc(doc(db, 'inventory', i.id), i));
-    });
+    }, errorHandler('inventory'));
     
     const unsubSales = onSnapshot(query(collection(db, 'sales'), orderBy('timestamp', 'desc')), (snap) => {
       setSales(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as SaleRecord)));
-    });
+    }, errorHandler('sales'));
     
     const unsubCuts = onSnapshot(query(collection(db, 'dailyCuts'), orderBy('date', 'desc')), (snap) => {
       setDailyCuts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as DailyCut)));
-    });
+    }, errorHandler('dailyCuts'));
 
-    return () => { unsubTables(); unsubInv(); unsubSales(); unsubCuts(); };
+    return () => {
+      unsubTables(); unsubInv(); unsubSales(); unsubCuts();
+    };
   }, [isFirebaseAuthed]);
 
   const loginWithEmail = async (email: string, pass: string) => {};
@@ -180,7 +192,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const loginWithPin = async (role: Role, pin: string) => {
     const userMatch = users.find(u => u.role === role && u.password === pin);
     if (userMatch) setUser(userMatch);
-    else throw new Error("Acceso denegado.");
+    else throw new Error("PIN o Rol incorrectos.");
   };
 
   const logout = async () => setUser(null);
@@ -329,14 +341,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const totalTurnSales = sales.reduce((acc, s) => acc + s.total, 0);
-      const prompt = `Como experto en bares, analiza una venta de $${totalTurnSales} y da un consejo corto.`;
+      const prompt = `Analiza una venta de $${totalTurnSales} para un bar y da un consejo corto.`;
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt,
       });
       return response.text;
     } catch {
-      return "Buen ritmo de venta hoy.";
+      return "Sigue así, el servicio es la clave.";
     }
   };
 
