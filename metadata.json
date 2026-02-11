@@ -1,0 +1,5 @@
+{
+  "name": "Bar Dev",
+  "description": "A comprehensive bar and restaurant management system with role-based access, real-time order tracking, intelligent inventory, and pool table management.",
+  "requestFramePermissions": []
+}
