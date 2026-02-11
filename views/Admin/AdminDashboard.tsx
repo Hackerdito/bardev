@@ -341,22 +341,31 @@ const AdminDashboard: React.FC = () => {
                      <div className="lg:col-span-2 space-y-6">
                         <h4 className="font-black uppercase text-xs text-indigo-500 tracking-widest">Productos Consumidos</h4>
                         <div className="space-y-4">
-                           {tableDetail.items.map(item => (
-                             <div key={item.id} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-zinc-800/40 rounded-[24px] border border-transparent hover:border-indigo-500/30 transition-all">
-                                <div>
-                                   <p className="font-bold text-gray-900 dark:text-white text-lg tracking-tight">{item.name}</p>
-                                   <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest">{item.status}</p>
-                                </div>
-                                <div className="flex items-center gap-6">
-                                   <span className="font-black text-xl text-gray-900 dark:text-white">${item.price}</span>
-                                   {isAdmin && (
-                                     <button onClick={() => removeOrderItem(tableDetail.id, item.id)} className="p-2.5 text-gray-300 hover:text-red-600 transition-all">
-                                        <Trash2 size={20} />
-                                     </button>
-                                   )}
-                                </div>
-                             </div>
-                           ))}
+                           {tableDetail.items.map(item => {
+                             const cleanStatus = item.status.replace('#', '');
+                             const isReady = cleanStatus === 'READY';
+                             return (
+                               <div key={item.id} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-zinc-800/40 rounded-[24px] border border-transparent hover:border-indigo-500/30 transition-all">
+                                  <div>
+                                     <p className="font-bold text-gray-900 dark:text-white text-lg tracking-tight">{item.name}</p>
+                                     <div className="flex items-center gap-1.5 mt-0.5">
+                                        <div className={`w-1.5 h-1.5 rounded-full ${isReady ? 'bg-green-500' : 'bg-red-500'}`} />
+                                        <p className="text-[10px] text-gray-400 dark:text-zinc-500 uppercase font-black tracking-widest">
+                                          {isReady ? 'Listo' : 'En preparación'}
+                                        </p>
+                                     </div>
+                                  </div>
+                                  <div className="flex items-center gap-6">
+                                     <span className="font-black text-xl text-gray-900 dark:text-white">${item.price}</span>
+                                     {isAdmin && (
+                                       <button onClick={() => removeOrderItem(tableDetail.id, item.id)} className="p-2.5 text-gray-300 hover:text-red-600 transition-all">
+                                          <Trash2 size={20} />
+                                       </button>
+                                     )}
+                                  </div>
+                               </div>
+                             );
+                           })}
                         </div>
                      </div>
                      <div className="space-y-6">

@@ -22,7 +22,6 @@ const BillarTimer: React.FC<{ table: Table }> = ({ table }) => {
       const minutes = Math.floor((timeToDisplay % 3600000) / 60000);
       const seconds = Math.floor((timeToDisplay % 60000) / 1000);
       
-      // FIX: Interpolación correcta de strings con ${} para minutos y segundos
       setTimerData({
         text: `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`,
         isExpired: expired
@@ -231,15 +230,24 @@ const WaiterDashboard: React.FC = () => {
 
               <div className="space-y-4">
                 <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">Consumo Actual</h4>
-                {activeTable.items.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-zinc-800/40 rounded-3xl border border-transparent hover:border-indigo-500/20 transition-all">
-                    <div>
-                      <p className="font-black text-gray-900 dark:text-white text-lg tracking-tight">{item.name}</p>
-                      <p className="text-[10px] text-indigo-500 uppercase font-black tracking-widest">{item.status}</p>
+                {activeTable.items.map((item) => {
+                  const cleanStatus = item.status.replace('#', '');
+                  const isReady = cleanStatus === 'READY';
+                  return (
+                    <div key={item.id} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-zinc-800/40 rounded-3xl border border-transparent hover:border-indigo-500/20 transition-all">
+                      <div>
+                        <p className="font-black text-gray-900 dark:text-white text-lg tracking-tight">{item.name}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <div className={`w-1.5 h-1.5 rounded-full ${isReady ? 'bg-green-500' : 'bg-red-500'}`} />
+                          <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-black tracking-widest">
+                            {isReady ? 'Listo' : 'En preparación'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="font-black text-xl text-gray-900 dark:text-white tracking-tighter">${item.price}</span>
                     </div>
-                    <span className="font-black text-xl text-gray-900 dark:text-white tracking-tighter">${item.price}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
