@@ -104,7 +104,7 @@ const RoleSelector: React.FC = () => {
       {/* Background Image - Persistent for all auth views */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700 scale-105"
-        style={{ backgroundImage: 'url("https://images.pexels.com/photos/35269842/pexels-photo-35269842.jpeg")' }}
+        style={{ backgroundImage: 'url("https://fileuk.netlify.app/barBG.webp")' }}
       >
         <div className={`absolute inset-0 transition-colors duration-500 ${view === 'roles' ? 'bg-black/70 backdrop-blur-[2px]' : 'bg-black/60 backdrop-blur-[6px]'}`}></div>
       </div>
