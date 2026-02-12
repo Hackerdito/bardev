@@ -10,7 +10,7 @@ const Header: React.FC = () => {
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 dark:border-zinc-800 bg-white">
           <img 
-            src="https://static.vecteezy.com/system/resources/thumbnails/000/560/604/small/Vector_logo_with_bottel_beer.jpg" 
+            src="https://fileuk.netlify.app/full.png" 
             alt="Logo" 
             className="w-full h-full object-cover"
           />
